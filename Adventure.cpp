@@ -3,15 +3,17 @@
 // written on android march 2020
 #include "Adventure.hpp"
 
+World world;
+
 int main() {
-	World world;
 	print("Hello traveler!");
 	world.add(Rock(vec2(3)));
 	world.add(Rock(vec2(4)));
 	world.add(Rock(vec2(3,4)));
 	world.add(Rock(vec2(3,5)));
 
-	world.printView();
+	GameInterpereter GI;
+	GI.startSession();
 
 	return 0;
 }

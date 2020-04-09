@@ -4,8 +4,11 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <vector>
-
+#include <string>
+#include <iostream>
 using std::vector;
+using std::string;
+using namespace std::string_literals;
 
 inline void print(const char* fmt, ...) {
 	va_list ap;
@@ -41,6 +44,20 @@ struct vec2 {
 	}
 	vec2 operator - (const int& i) const {
 		return *this - vec2(i);
+	}
+	void operator += (const vec2& v) {
+		x+=v.x;
+		y+=v.y;
+	}
+	void operator -= (const vec2& v) {
+		x-=v.x;
+		y-=v.y;
+	}
+	void operator += (const int& i) {
+		*this += vec2(i);
+	}
+	void operator -= (const int& i) {
+		*this -= vec2(i);
 	}
 	bool inside(const vec2& min, const vec2& max) const {
 		if (x < min.x) return false;
@@ -109,6 +126,68 @@ public:
 
 		for (int i = 0; i < drawSize; i++) {
 			print(screen[i]);
+		}
+	}
+	void movePlayer(vec2 move) {
+		auto pos = player.pos + move;
+		for (auto&& obj : objects) {
+			if (pos.inside(obj.pos, obj.pos + obj.size)) return;
+		}
+		player.pos = pos;
+
+	}
+	void update() {
+		// move enemies and stuff
+	}
+};
+
+extern World world;
+
+class GameInterpereter {
+	vector<string> split(
+			const string& in, 
+			const string& delim) {
+		vector<string> ret;
+		if (in.length()==0){
+			return ret;
+		}
+		size_t pos = 0;
+		size_t lpos = 0;
+		auto dlen = delim.length();
+		while ((pos = in.find(delim, lpos)) != string::npos) {
+			ret.push_back(in.substr(lpos, pos - lpos));
+			lpos = pos + dlen;
+		}
+		ret.push_back(in.substr(lpos, in.length()));
+		return ret;
+	}
+	string getl() {
+		string s;
+		std::getline(std::cin, s);
+		return s;
+	}
+public:
+	void startSession() {
+		while(1){
+			auto in = getl();
+			if (in == "quit"s) break;
+
+			if (in == "up"s) {
+				world.movePlayer(vec2(0,1));
+			} else
+			if (in == "down"s) {
+				world.movePlayer(vec2(0,-1));
+			} else
+			if (in == "left"s) {
+				world.movePlayer(vec2(-1,0));
+			} else
+			if (in == "right"s) {
+				world.movePlayer(vec2(1,0));
+			}
+
+			world.update();
+
+			world.printView();
 		}
 	}
 };
