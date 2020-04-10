@@ -1,1 +1,1 @@
-gcc *.cpp -O3 -lstdc++ -std=c++2a -o Adv
+gcc src/*.cpp -O3 -lstdc++ -std=c++2a -o Adv
