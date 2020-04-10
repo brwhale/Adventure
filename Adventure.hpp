@@ -4,11 +4,20 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <vector>
+#include <deque>
 #include <string>
 #include <iostream>
+#include <functional>
+#include <map>
+#include <thread>
+#include <chrono>
+using std::deque;
+using std::map;
 using std::vector;
 using std::string;
+using std::function;
 using namespace std::string_literals;
+using namespace std::chrono_literals;
 
 inline void print(const char* fmt, ...) {
 	va_list ap;
@@ -18,16 +27,16 @@ inline void print(const char* fmt, ...) {
 	printf("\n");
 }
 
+inline void print(const string& str) {
+	printf("%s", str.c_str());
+	printf("\n");
+}
+
 struct vec2 { 
 	int x;
 	int y;
-	vec2(){
-		x = y = 0;
-	}
-	vec2(int x_) {
-		x = x_;
-		y = x_;
-	}
+	vec2() : x(0), y(0) {}
+	vec2(int x_) : x(x_), y(x_) {}
 	vec2(int x_, int y_) : x(x_), y(y_) {}
 	vec2(const vec2& v) {
 		x = v.x;
@@ -109,8 +118,8 @@ public:
 		vec2 vmin = player.pos - viewRange;
 		vec2 vmax = player.pos + viewRange;
 		char screen[drawSize][drawSize+1];
-		for (int i = 0; i < drawSize; i++) {
-			for (int j = 0; j < drawSize; j++) {
+		for (int i = drawSize; i--;) {
+			for (int j = drawSize; j--;) {
 				screen[i][j] = ' ';
 			}
 			screen[i][drawSize] = 0;
@@ -124,7 +133,7 @@ public:
 		}
 		screen[viewRange][viewRange] = player.icon;
 
-		for (int i = 0; i < drawSize; i++) {
+		for (int i = drawSize; i--;) {
 			print(screen[i]);
 		}
 	}
@@ -141,12 +150,30 @@ public:
 	}
 };
 
-extern World world;
+class Func {
+public:
+	function<void(vector<string>&)> func;
+	string helpText;
+	void operator()(vector<string>& args) {
+		func(args);
+	}
+};
+
+class VoidFunc {
+public:
+	function<void(void)> func;
+	string helpText;
+	void operator()() {
+		func();
+	}
+};
 
 class GameInterpereter {
-	vector<string> split(
-			const string& in, 
-			const string& delim) {
+	World world;
+	map<string, Func> funcs;
+	deque<VoidFunc> commandList;
+	bool running;
+	vector<string> split(const string& in, const string& delim) {
 		vector<string> ret;
 		if (in.length()==0){
 			return ret;
@@ -166,28 +193,106 @@ class GameInterpereter {
 		std::getline(std::cin, s);
 		return s;
 	}
+	void processInput(const string& in) {
+		if (in.length() <= 1) return;
+		auto statements = split(in, ","s);
+		for (auto&& statement : statements) {
+			while (statement.size() && (statement[0] == '/' || statement[0] == ' ')) {
+				statement.erase(statement.begin());
+			}
+			auto args = split(statement, " "s);
+			auto cmd = funcs.find(args[0]);
+			if (cmd != funcs.end()) {
+				cmd->second(args);
+			} else {
+				print("Invalid command, use '/help' to list available commands");
+			}
+		}
+	}
+	void addCommand(
+		vector<string>& args,
+		int expectArgs,
+		const string& executemsg, 
+		function<void(void)> fnc
+		) {
+		if (args.size() > expectArgs) {
+			int times = 1;
+			try {
+				times = std::stoi(args.back());
+			} catch (std::exception e){}
+			while (times-- > 0) {
+				commandList.push_back({fnc, executemsg});
+			}
+		}
+	}
 public:
-	void startSession() {
-		while(1){
-			auto in = getl();
-			if (in == "quit"s) break;
+	GameInterpereter() {
+		funcs["help"] = Func{ [this](vector<string>& args) { 
+			print("");
+			print("");
+			print("Welcome to Adventure by Garrett Skelton!");
+			print("Below is a list of available commands");
+			print("");
+			for (auto&& func : funcs) { 
+				print(func.first + " - " + func.second.helpText); 
+			} 
+			print("");
+		}, "Displays available commands" };
+		funcs["quit"] = Func{[this](vector<string>& args){
+			running = false;
+		}, "quit the game"};
 
-			if (in == "up"s) {
+		funcs["wait"]= Func{[this](vector<string>& args){
+			addCommand(args, 1, "waiting", [this](){
+				// waiting is an empty command
+			});
+		}, "advance game time"};
+		funcs["up"]= Func{[this](vector<string>& args){
+			addCommand(args, 1, "moving up", [this](){
 				world.movePlayer(vec2(0,1));
-			} else
-			if (in == "down"s) {
+			});
+		}, "move up"};
+		funcs["down"]= Func{[this](vector<string>& args){
+			addCommand(args, 1, "moving down", [this](){
 				world.movePlayer(vec2(0,-1));
-			} else
-			if (in == "left"s) {
+			});
+		}, "move down"};
+		funcs["left"]= Func{[this](vector<string>& args){
+			addCommand(args, 1, "moving left", [this](){
 				world.movePlayer(vec2(-1,0));
-			} else
-			if (in == "right"s) {
+			});
+		}, "move left"};
+		funcs["right"]= Func{[this](vector<string>& args){
+			addCommand(args, 1, "moving right", [this](){
 				world.movePlayer(vec2(1,0));
+			});
+		}, "move right"};
+	}
+	void add(const GameObject& obj) {
+		world.add(obj);
+	}
+	void startSession() {
+		running = true;
+		print("Hello traveler!");
+		world.printView();
+		while(running) {
+			auto in = getl();
+			processInput(in);
+
+			while (commandList.size()) {
+				print(commandList.front().helpText);
+				commandList.front()();
+				commandList.pop_front();
+
+				world.update();
+				world.printView();
+
+				if (commandList.size()) {
+					std::this_thread::sleep_for(.5s);
+				}
 			}
 
-			world.update();
-
-			world.printView();
+			print("Commands executed! Enter next move");
 		}
 	}
 };
