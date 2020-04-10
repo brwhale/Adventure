@@ -115,7 +115,10 @@ public:
 			});
 		}, "move right"};
 	}
-	void add(const GameObject& obj) {
+	void add(const StaticObject& obj) {
+		world.add(obj);
+	}
+	void add(const Monster& obj) {
 		world.add(obj);
 	}
 	void startSession() {
@@ -123,23 +126,18 @@ public:
 		print("Hello traveler!");
 		world.printView();
 		while(running) {
-			auto in = getl();
-			processInput(in);
-
+			print("Enter a move:");
+			processInput(getl());
 			while (commandList.size()) {
 				print(commandList.front().helpText);
 				commandList.front()();
 				commandList.pop_front();
-
 				world.update();
 				world.printView();
-
 				if (commandList.size()) {
 					std::this_thread::sleep_for(.5s);
 				}
 			}
-
-			print("Commands executed! Enter next move");
 		}
 	}
 };
