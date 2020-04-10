@@ -90,27 +90,27 @@ public:
 		}, "quit the game"};
 
 		funcs["wait"]= Func{[this](vector<string>& args){
-			addCommand(args, 1, "waiting", [this](){
+			addCommand(args, 0, "waiting", [this](){
 				// waiting is an empty command
 			});
 		}, "advance game time without taking action"};
 		funcs["up"]= Func{[this](vector<string>& args){
-			addCommand(args, 1, "moving up", [this](){
+			addCommand(args, 0, "moving up", [this](){
 				world.movePlayer(vec2(0,1));
 			});
 		}, "move up"};
 		funcs["down"]= Func{[this](vector<string>& args){
-			addCommand(args, 1, "moving down", [this](){
+			addCommand(args, 0, "moving down", [this](){
 				world.movePlayer(vec2(0,-1));
 			});
 		}, "move down"};
 		funcs["left"]= Func{[this](vector<string>& args){
-			addCommand(args, 1, "moving left", [this](){
+			addCommand(args, 0, "moving left", [this](){
 				world.movePlayer(vec2(-1,0));
 			});
 		}, "move left"};
 		funcs["right"]= Func{[this](vector<string>& args){
-			addCommand(args, 1, "moving right", [this](){
+			addCommand(args, 0, "moving right", [this](){
 				world.movePlayer(vec2(1,0));
 			});
 		}, "move right"};

@@ -51,12 +51,13 @@ public:
 		}
 	}
 	void movePlayer(vec2 move) {
+		const vec2 so(1);
 		auto pos = player.pos + move;
 		for (auto&& obj : objects) {
-			if (pos.inside(obj.pos, obj.pos + obj.size)) return;
+			if (pos.inside(obj.pos, obj.pos + obj.size - so)) return;
 		}
 		for (auto&& obj : monsters) {
-			if (pos.inside(obj.pos, obj.pos + obj.size)) {
+			if (pos.inside(obj.pos, obj.pos + obj.size - so)) {
 				// start combat with initiative in our favor
 				return;
 			}
