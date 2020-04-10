@@ -14,7 +14,11 @@ class World {
 	vector<StaticObject> objects;
 	vector<Monster> monsters;
 
-	void draw(const GameObject& obj, vector<string>& screen, const vec2& vmin, const vec2& vmax) {
+	void draw(
+			const GameObject& obj,
+		 	vector<string>& screen, 
+			const vec2& vmin, 
+			const vec2& vmax) {
 		for (auto x = obj.size.x; x--;) {
 			for (auto y = obj.size.y; y--;) {
 				auto pos = obj.pos + vec2(x, y);
@@ -50,9 +54,9 @@ public:
 			print(screen[i]);
 		}
 	}
-	void movePlayer(vec2 move) {
+	void moveUnit(GameObject& pbj, vec2 move) {
 		const vec2 so(1);
-		auto pos = player.pos + move;
+		auto pos = pbj.pos + move;
 		for (auto&& obj : objects) {
 			if (pos.inside(obj.pos, obj.pos + obj.size - so)) return;
 		}
@@ -62,10 +66,16 @@ public:
 				return;
 			}
 		}
-		player.pos = pos;
+		pbj.pos = pos;
+	}
+	void movePlayer(vec2 move){
+		moveUnit(player, move);
 	}
 	void update() {
 		// move enemies and stuff
+		for (auto&& obj : monsters){
+			moveUnit(obj, obj.wander(player.pos));
+		}
 	}
 };
 

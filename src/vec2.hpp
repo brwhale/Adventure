@@ -37,13 +37,29 @@ struct vec2 {
 	void operator -= (const int& i) {
 		*this -= vec2(i);
 	}
-	bool inside(const vec2& min, const vec2& max) const {
+	bool inside(
+			const vec2& min, 
+			const vec2& max) const {
 		if (x < min.x) return false;
 		if (x > max.x) return false;
 		if (y < min.y) return false;
 		if (y > max.y) return false;
 
 		return true;
+	}
+	void normalize(){
+		if (x == 0 && y == 0) {
+			return;
+		}
+		auto ax = abs(x);
+		auto ay = abs(y);
+		if (ax > ay){
+			y = 0;
+			x = x > 0 ? 1 : -1;
+		} else {
+			x = 0;
+			y = y > 0 ? 1 : -1;
+		}
 	}
 };
 

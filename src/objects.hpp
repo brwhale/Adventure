@@ -44,6 +44,11 @@ public:
 		size = vec2(1);
 		icon = 'M';
 	}
+	vec2 wander(const vec2& tpos){
+		auto diff = tpos - pos;
+		diff.normalize();
+		return diff;
+	}
 };
 
 #endif

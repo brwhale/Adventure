@@ -20,7 +20,9 @@ class GameInterpereter {
 	map<string, Func> funcs;
 	deque<VoidFunc> commandList;
 	bool running;
-	vector<string> split(const string& in, const string& delim) {
+	vector<string> split(
+			const string& in, 
+			const string& delim) {
 		vector<string> ret;
 		if (in.length()==0){
 			return ret;
@@ -28,7 +30,8 @@ class GameInterpereter {
 		size_t pos = 0;
 		size_t lpos = 0;
 		auto dlen = delim.length();
-		while ((pos = in.find(delim, lpos)) != string::npos) {
+		while ((pos = in.find(delim, lpos)) 
+				!= string::npos) {
 			ret.push_back(in.substr(lpos, pos - lpos));
 			lpos = pos + dlen;
 		}
@@ -74,42 +77,49 @@ class GameInterpereter {
 	}
 public:
 	GameInterpereter() {
-		funcs["help"] = Func{ [this](vector<string>& args) { 
-			print("");
-			print("");
-			print("Welcome to Adventure by Garrett Skelton!");
-			print("Below is a list of available commands");
+		funcs["help"] = Func{ [this](
+				vector<string>& args) { 
+			print("Welcome to Adventure!");
+			print("by Garrett Skelton!");
+			print("Below is a list of commands:");
 			print("");
 			for (auto&& func : funcs) { 
-				print(func.first + " - " + func.second.helpText); 
+				print(func.first + " - " 
+						+ func.second.helpText); 
 			} 
 			print("");
 		}, "Displays available commands" };
-		funcs["quit"] = Func{[this](vector<string>& args){
+		funcs["quit"] = Func{[this](
+				vector<string>& args){
 			running = false;
 		}, "quit the game"};
 
-		funcs["wait"]= Func{[this](vector<string>& args){
+		funcs["wait"]= Func{[this](
+				vector<string>& args){
 			addCommand(args, 0, "waiting", [this](){
 				// waiting is an empty command
 			});
 		}, "advance game time without taking action"};
-		funcs["up"]= Func{[this](vector<string>& args){
+		funcs["up"]= Func{[this](
+				vector<string>& args){
 			addCommand(args, 0, "moving up", [this](){
 				world.movePlayer(vec2(0,1));
 			});
 		}, "move up"};
-		funcs["down"]= Func{[this](vector<string>& args){
+		funcs["down"]= Func{[this](
+				vector<string>& args){
 			addCommand(args, 0, "moving down", [this](){
 				world.movePlayer(vec2(0,-1));
 			});
 		}, "move down"};
-		funcs["left"]= Func{[this](vector<string>& args){
+		funcs["left"]= Func{[this](
+				vector<string>& args){
 			addCommand(args, 0, "moving left", [this](){
 				world.movePlayer(vec2(-1,0));
 			});
 		}, "move left"};
-		funcs["right"]= Func{[this](vector<string>& args){
+		funcs["right"]= Func{[this](
+				vector<string>& args){
 			addCommand(args, 0, "moving right", [this](){
 				world.movePlayer(vec2(1,0));
 			});
