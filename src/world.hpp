@@ -6,11 +6,9 @@
 #include <vector>
 using std::vector;
 
-const int viewRange = 10;
-const vec2 drawSize = vec2(
-	viewRange * 4 + 1, 
-	viewRange * 2 + 1
-);
+const int viewRange = 9;
+const vec2 vr(viewRange * 4, viewRange);
+const vec2 drawSize = vr * 2 + 1;
 
 enum class Gstate {
 	overworld,
@@ -52,21 +50,22 @@ public:
 		monsters.back().index = monsters.size() - 1;
 	}
 	void printUnitStats(const LivingObject& u){
-		print("%s: lvl:%i gold:%i hp:%i/%i str:%i amr:%i",
-				u.name.c_str(),
-				u.level,
-				u.gold,
-				u.health,
-				u.maxhealth,
-				u.strength,
-				u.armor);
+		print("%s%s: lvl:%i gold:%i hp:%i/%i str:%i amr:%i",
+			Color::Get(Color::BG_Blue, Color::White),
+			u.name.c_str(),
+			u.level,
+			u.gold,
+			u.health,
+			u.maxhealth,
+			u.strength,
+			u.armor);
 	}
 	void printUI(){
 		printUnitStats(player);
-		print("enter command");
+		print("%senter command",
+			Color::Get(Color::BG_White, Color::Black));
 	}
 	void printOverworld() {
-		const vec2 vr(viewRange * 2, viewRange);
 		vec2 vmin = player.pos - vr;
 		vec2 vmax = player.pos + vr;
 		vector<string> screen(drawSize.y, string(drawSize.x, ' '));
@@ -78,13 +77,12 @@ public:
 			draw(obj, screen, vmin, vmax);
 		}
 		screen[vr.y][vr.x] = player.icon;
-
+		screen.back() = Color::GetStr(Color::White) + screen.back();
 		for (int i = drawSize.y; i--;) {
 			print(screen[i]);
 		}
 	}
 	void printCombat(){
-		print("Combat!");
 		printUnitStats(*combatUnit);
 	}
 	void printView(){
@@ -96,7 +94,8 @@ public:
 				printCombat();
 				break;
 			case Gstate::death:
-				print("you are dead");
+				print("%syou are dead", 
+					Color::Get(Color::BG_Red, Color::Black));
 				break;
 			default: break;
 		}	
@@ -104,40 +103,67 @@ public:
 	void leaveCombat() {
 		gamestate = Gstate::overworld;
 	}
+	void unitDeath(
+		LivingObject& attacker, 
+		LivingObject& defender) {
+		nap();
+		print("and died");
+		auto xpgain = 20 * defender.level;
+		attacker.gold += defender.gold;
+		attacker.xp += xpgain;
+		nap();
+		print("%s%s gained %i xp and %i gold",
+			Color::Get(Color::BG_Brown, Color::White),
+			attacker.name.c_str(),
+			xpgain,
+			defender.gold);
+		auto newlevel = getLevel(attacker.xp);
+		if (newlevel != attacker.level){
+			attacker.levelUp(newlevel);
+			nap();
+			print("%scongratulations %s reached level %i",
+				Color::Get(Color::BG_Teal, Color::Yellow),
+				attacker.name.c_str(),
+				newlevel);
+		}
+		switch (defender.otype){
+		case Otype::monster: {
+			auto id = defender.index;
+			monsters[id] = monsters.back();
+			monsters[id].index = id;
+			monsters.pop_back();
+			leaveCombat();
+		}
+			break;
+		case Otype::player:
+			gamestate = Gstate::death;
+			break;
+		default:
+			break;
+		}
+		print("%senter to continue",
+			Color::Get(Color::BG_White, Color::Black));
+		getl();
+	}
 	void attack(
-			LivingObject& attacker, 
-			LivingObject& defender) {
+		LivingObject& attacker, 
+		LivingObject& defender) {
+		nap();
+		print("%s%s attacked %s",
+			Color::Get(Color::BG_White, Color::Red),
+			attacker.name.c_str(),
+			defender.name.c_str());
 		auto damage = attacker.strength 
 			- defender.armor;
 		defender.health -= damage;
-		print("%s took %i damage", 
-				defender.name.c_str(), damage);
+		nap();
+		print("%s%s took %i damage", 
+			Color::Get(Color::BG_Red, Color::Black),
+			defender.name.c_str(), damage);
 		if (defender.health <= 0){
-			print("and died");
-			attacker.gold += defender.gold;
-			attacker.xp += 10 * defender.level;
-			print("%s gained %i xp and %i gold",
-					defender.level,
-					defender.gold
-					);
-			auto newlevel = getLevel(attacker.xp);
-			if (newlevel != attacker.level){
-				attacker.level = newlevel;
-				print("congratulations %s reached level %i",
-						attacker.name.c_str(),
-						newlevel);
-			}
-			switch (defender.otype){
-				case Otype::monster:
-				monsters.erase(monsters.begin()
-					 + defender.index);
-				leaveCombat();
-				break;
-				case Otype::player:
-				gamestate = Gstate::death;
-				break;
-			}
+			unitDeath(attacker, defender);
 		}
+		nap();
 	}
 	void attack(){
 		attack(player, *combatUnit);
@@ -145,14 +171,16 @@ public:
 	void startCombat(
 			LivingObject& attacker, 
 			LivingObject& defender){
-		print("combat start %s attacked %s",
-				attacker.name.c_str(),
-				defender.name.c_str());
+		
 		gamestate = Gstate::combat;
 		if (attacker.otype == Otype::player) {
 			combatUnit = &defender;
+			print("%sCombat start!",
+				Color::Get(Color::BG_Green, Color::White));
 		} else {
 			combatUnit = &attacker;
+			print("%sCombat start!",
+				Color::Get(Color::BG_Red, Color::White));
 		}
 		attack(attacker, defender);
 	}
@@ -166,16 +194,19 @@ public:
 		for (auto&& obj : monsters) {
 			if (pos.inside(obj.pos, 
 						obj.pos + obj.size - so)) {
-				startCombat(pbj, obj);
+				if (pbj.otype == Otype::player) {
+					startCombat(pbj, obj);
+				}
 				return;
 			}
 		}
 		if (pos.inside(player.pos, 
 					player.pos + player.size - so)) {
-			startCombat(pbj, player);
+			if (pbj.otype == Otype::monster) {
+				startCombat(pbj, player);
+			}
 			return;
 		}
-
 		pbj.pos = pos;
 	}
 	void movePlayer(vec2 move){
@@ -192,10 +223,10 @@ public:
 	}
 	void update(){
 		switch (gamestate) {
-			case Gstate::overworld :
+			case Gstate::overworld:
 				updateOverworld();
 				break;
-			case Gstate::combat :
+			case Gstate::combat:
 				updateCombat();
 				break;
 			default: break;

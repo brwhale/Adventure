@@ -43,6 +43,19 @@ public:
 	int xp;
 	string name;
 	LivingObject () {}
+	void levelUp(int newLevel) {
+		level = newLevel;
+		maxhealth += 5 * level;
+		health = maxhealth;
+		strength += level/2;
+		armor += 1;
+		print("health increased to %i", health);
+		print("strength increased to %i", strength);
+		print("armor increased to %i", armor);
+	}
+	void levelUp() {
+		levelUp(level + 1);
+	}
 };
 
 class Rock : public StaticObject {
@@ -82,7 +95,7 @@ public:
 		level = 1;
 		maxhealth = 30;
 		health = 30;
-		strength = 4;
+		strength = 3;
 		armor = 1;
 		gold = 3 + rand()%3;
 		xp = 0;

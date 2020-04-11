@@ -17,11 +17,23 @@ struct vec2 {
 	vec2 operator - (const vec2& v) const {
 		return vec2(x-v.x, y-v.y);
 	}
+	vec2 operator * (const vec2& v) const {
+		return vec2(x*v.x, y*v.y);
+	}
+	vec2 operator / (const vec2& v) const {
+		return vec2(x/v.x, y/v.y);
+	}
 	vec2 operator + (const int& i) const {
-		return vec2(i) + *this;
+		return *this + vec2(i);
 	}
 	vec2 operator - (const int& i) const {
 		return *this - vec2(i);
+	}
+	vec2 operator * (const int& i) const {
+		return *this * vec2(i);
+	}
+	vec2 operator / (const int& i) const {
+		return *this / vec2(i);
 	}
 	void operator += (const vec2& v) {
 		x+=v.x;
@@ -31,11 +43,25 @@ struct vec2 {
 		x-=v.x;
 		y-=v.y;
 	}
+	void operator *= (const vec2& v) {
+		x*=v.x;
+		y*=v.y;
+	}
+	void operator /= (const vec2& v) {
+		x/=v.x;
+		y/=v.y;
+	}
 	void operator += (const int& i) {
 		*this += vec2(i);
 	}
 	void operator -= (const int& i) {
 		*this -= vec2(i);
+	}
+	void operator *= (const int& i) {
+		*this *= vec2(i);
+	}
+	void operator /= (const int& i) {
+		*this /= vec2(i);
 	}
 	bool inside(
 			const vec2& min, 
@@ -62,5 +88,18 @@ struct vec2 {
 		}
 	}
 };
+
+inline vec2 operator + (const int& i, const vec2& v) {
+  return vec2(i) + v;
+}
+inline vec2 operator - (const int& i, const vec2& v) {
+  return vec2(i) - v;
+}
+inline vec2 operator * (const int& i, const vec2& v) {
+  return vec2(i) * v;
+}
+inline vec2 operator / (const int& i, const vec2& v) {
+  return vec2(i) / v;
+}
 
 #endif

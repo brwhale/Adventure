@@ -2,14 +2,9 @@
 #define AdventureHpp
 
 #include <deque>
-#include <iostream>
 #include <map>
-#include <thread>
-#include <chrono>
 using std::deque;
 using std::map;
-using namespace std::string_literals;
-using namespace std::chrono_literals;
 
 #include "printfuncs.hpp"
 #include "world.hpp"
@@ -39,11 +34,6 @@ class GameInterpereter {
 		}
 		ret.push_back(in.substr(lpos, in.length()));
 		return ret;
-	}
-	string getl() {
-		string s;
-		std::getline(std::cin, s);
-		return s;
 	}
 	void processInput(const string& in) {
 		if (in.length() <= 1) {
@@ -86,9 +76,8 @@ public:
 	GameInterpereter() {
 		funcs["help"] = Func{ [this](
 				vector<string>& args) { 
-			print("Welcome to Adventure!");
-			print("by Garrett Skelton!");
-			print("Below is a list of commands:");
+			print("%sBelow is a list of commands:",
+				Color::Get(Color::BG_Green, Color::White));
 			print("");
 			for (auto&& func : funcs) { 
 				print(func.first + " - " 
@@ -99,6 +88,9 @@ public:
 		funcs["quit"] = Func{[this](
 				vector<string>& args){
 			running = false;
+			print("%squitting%s",
+				Color::Get(Color::White),
+				Color::Clear());
 		}, "quit the game"};
 
 		funcs["wait"] = Func{[this](
@@ -153,16 +145,14 @@ public:
 	void add(const Monster& obj) {
 		world.add(obj);
 	}
-	void nap(){
-		std::this_thread::sleep_for(.35s);
-	}
 	void startSession() {
 		running = true;
-		print("Hello traveler!");
+		print("%sHello traveler!",
+			Color::Get(Color::BG_Blue, Color::Yellow));
 		nap();
 		print("Welcome to the Other world.");
 		nap();
-		print("");
+		print("by Garrett Skelton");
 		nap();
 		print("press enter to step outside");
 		getl();
@@ -172,7 +162,9 @@ public:
 		while(running) {
 			processInput(getl());
 			while (commandList.size()) {
-				print(commandList.front().helpText);
+				print("%s%s",
+					Color::Get(Color::White),
+					commandList.front().helpText.c_str());
 				lastCommand = commandList.front();
 				commandList.front()();
 				commandList.pop_front();
