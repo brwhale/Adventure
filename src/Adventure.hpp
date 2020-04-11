@@ -20,6 +20,7 @@ class GameInterpereter {
 	map<string, Func> funcs;
 	deque<VoidFunc> commandList;
 	bool running;
+	Gstate gamestate = Gstate::overworld;
 	vector<string> split(
 			const string& in, 
 			const string& delim) {
@@ -47,7 +48,9 @@ class GameInterpereter {
 		if (in.length() <= 1) return;
 		auto statements = split(in, ","s);
 		for (auto&& statement : statements) {
-			while (statement.size() && (statement[0] == '/' || statement[0] == ' ')) {
+			while (statement.size() && 
+					(statement[0] == '/'
+					 || statement[0] == ' ')) {
 				statement.erase(statement.begin());
 			}
 			auto args = split(statement, " "s);
@@ -63,7 +66,7 @@ class GameInterpereter {
 		vector<string>& args,
 		int expectArgs,
 		const string& executemsg, 
-		function<void(void)> fnc
+		VoidFunc fnc
 		) {
 		if (args.size() > expectArgs) {
 			int times = 1;
@@ -94,36 +97,43 @@ public:
 			running = false;
 		}, "quit the game"};
 
-		funcs["wait"]= Func{[this](
+		funcs["wait"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "waiting", [this](){
 				// waiting is an empty command
 			});
 		}, "advance game time without taking action"};
-		funcs["up"]= Func{[this](
+		funcs["up"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "moving up", [this](){
 				world.movePlayer(vec2(0,1));
 			});
 		}, "move up"};
-		funcs["down"]= Func{[this](
+		funcs["down"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "moving down", [this](){
 				world.movePlayer(vec2(0,-1));
 			});
 		}, "move down"};
-		funcs["left"]= Func{[this](
+		funcs["left"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "moving left", [this](){
 				world.movePlayer(vec2(-1,0));
 			});
 		}, "move left"};
-		funcs["right"]= Func{[this](
+		funcs["right"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "moving right", [this](){
 				world.movePlayer(vec2(1,0));
 			});
 		}, "move right"};
+		funcs["run"] = Func{[this](
+				vector<string>& args){
+			addCommand(args, 0, "trying to run!",
+					[this](){
+						world.leaveCombat();
+					});
+		}, "run from combat"};
 	}
 	void add(const StaticObject& obj) {
 		world.add(obj);
@@ -131,12 +141,23 @@ public:
 	void add(const Monster& obj) {
 		world.add(obj);
 	}
+	void nap(){
+		std::this_thread::sleep_for(.35s);
+	}
 	void startSession() {
 		running = true;
 		print("Hello traveler!");
+		nap();
+		print("Welcome to the Other world.");
+		nap();
+		print("");
+		nap();
+		print("press enter to step outside");
+		getl();
+		
 		world.printView();
+		world.printUI();
 		while(running) {
-			print("Enter a move:");
 			processInput(getl());
 			while (commandList.size()) {
 				print(commandList.front().helpText);
@@ -144,8 +165,15 @@ public:
 				commandList.pop_front();
 				world.update();
 				world.printView();
+				world.printUI();
+
+				if (world.gamestate != gamestate){
+					gamestate = world.gamestate;
+					commandList.clear();
+				}
+
 				if (commandList.size()) {
-					std::this_thread::sleep_for(.5s);
+					nap();
 				}
 			}
 		}
