@@ -66,7 +66,7 @@ class GameInterpereter {
 		vector<string>& args,
 		int expectArgs,
 		const string& executemsg, 
-		VoidFunc fnc
+		function<void(void)> fnc
 		) {
 		if (args.size() > expectArgs) {
 			int times = 1;

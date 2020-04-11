@@ -16,7 +16,7 @@ enum class Gstate {
 	overworld,
 	combat,
 	dialog
-}
+};
 
 class World {
 	Adventurer player = Adventurer(vec2(0));
@@ -75,7 +75,7 @@ public:
 			print(screen[i]);
 		}
 	}
-	void drawCombat(){
+	void printCombat(){
 		print("Combat!");
 		print("enemy hp: %i/%i  strength: %i  armor: %i",
 				combatUnit->health,
@@ -91,6 +91,7 @@ public:
 			case Gstate::combat :
 				printCombat();
 				break;
+			default: break;
 		}	
 	}
 	void leaveCombat() {
@@ -98,10 +99,9 @@ public:
 			gamestate = Gstate::overworld;
 		}
 	}
-	void moveUnit(LivingObject& pbj, vec2 move) {
 	void attack(
 			LivingObject& attacker, 
-			LivingObject& defender){
+			LivingObject& defender) {
 		auto damage = attacker.strength 
 			- defender.armor;
 		defender.health -= damage;
@@ -174,6 +174,7 @@ public:
 			case Gstate::combat :
 				updateCombat();
 				break;
+			default: break;
 		}
 	}
 };
