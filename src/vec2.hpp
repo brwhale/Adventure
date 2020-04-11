@@ -1,5 +1,10 @@
 #ifndef vec2Hpp
 #define vec2Hpp
+#include <math.h>
+
+int sqrt(int i) {
+	return (int)sqrt((double)i);
+}
 
 struct vec2 { 
 	int x;
@@ -23,18 +28,6 @@ struct vec2 {
 	vec2 operator / (const vec2& v) const {
 		return vec2(x/v.x, y/v.y);
 	}
-	vec2 operator + (const int& i) const {
-		return *this + vec2(i);
-	}
-	vec2 operator - (const int& i) const {
-		return *this - vec2(i);
-	}
-	vec2 operator * (const int& i) const {
-		return *this * vec2(i);
-	}
-	vec2 operator / (const int& i) const {
-		return *this / vec2(i);
-	}
 	void operator += (const vec2& v) {
 		x+=v.x;
 		y+=v.y;
@@ -50,6 +43,18 @@ struct vec2 {
 	void operator /= (const vec2& v) {
 		x/=v.x;
 		y/=v.y;
+	}
+	vec2 operator + (const int& i) const {
+		return *this + vec2(i);
+	}
+	vec2 operator - (const int& i) const {
+		return *this - vec2(i);
+	}
+	vec2 operator * (const int& i) const {
+		return *this * vec2(i);
+	}
+	vec2 operator / (const int& i) const {
+		return *this / vec2(i);
 	}
 	void operator += (const int& i) {
 		*this += vec2(i);
@@ -77,15 +82,13 @@ struct vec2 {
 		if (x == 0 && y == 0) {
 			return;
 		}
-		auto ax = abs(x);
-		auto ay = abs(y);
-		if (ax > ay){
-			y = 0;
-			x = x > 0 ? 1 : -1;
-		} else {
-			x = 0;
-			y = y > 0 ? 1 : -1;
-		}
+		*this /= length();
+	}
+	int length(){
+		return sqrt(x*x + y*y);
+	}
+	int distance(const vec2& v) {
+		return (*this - v).length();
 	}
 };
 

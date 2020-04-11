@@ -59,8 +59,30 @@ public:
 			u.strength,
 			u.armor);
 	}
+	void printUnitPortrait(const LivingObject& u){
+		const int center = 3;
+		const vec2 cen(center);
+		const int size = 2*center + 1;
+		vector<vector<string>> output = {size, {size, {1, '.'}}};
+		string pattern = string(1, u.icon);
+		for (int i = size; i--;){
+			for (int j = size; j--;) {
+				if (vec2(i,j).distance(cen) < center - 1) {
+					output[i][j] = pattern;
+				}
+			}
+		}
+		for (int i = size; i--;){
+			string line = "";
+			for (int j = size; j--;) {
+				line += output[i][j];
+			}
+			print("%s%s",
+				Color::Get(Color::BG_Green, Color::Blue),
+				line.c_str());
+		}
+	}
 	void printUI(){
-		printUnitStats(player);
 		print("%senter command",
 			Color::Get(Color::BG_White, Color::Black));
 	}
@@ -81,9 +103,13 @@ public:
 				+ "|" + screen[i] + "|";
 			print(screen[i]);
 		}
+		printUnitStats(player);
 	}
 	void printCombat(){
 		printUnitStats(*combatUnit);
+		printUnitPortrait(*combatUnit);
+		printUnitPortrait(player);
+		printUnitStats(player);
 	}
 	void printView(){
 		switch (gamestate) {
@@ -159,14 +185,12 @@ public:
 		auto damage = attacker.strength 
 			- defender.armor;
 		defender.health -= damage;
-		nap();
 		print("%s%s took %i damage", 
 			Color::Get(Color::BG_Red, Color::Black),
 			defender.name.c_str(), damage);
 		if (defender.health <= 0){
 			unitDeath(attacker, defender);
 		}
-		nap();
 	}
 	void attack(){
 		attack(player, *combatUnit);

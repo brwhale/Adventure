@@ -24,7 +24,7 @@ namespace Color {
 	const string Mode_Default = "[";
 
 	const string BG_Black = "40";
-	const string BG_Red = "41";
+	const string BG_DarkRed = "41";
 	const string BG_Green = "42";
 	const string BG_Brown = "43";
 	const string BG_Blue = "44";
@@ -32,7 +32,7 @@ namespace Color {
 	const string BG_Teal = "46";
 	const string BG_LightGrey = "47";
 	const string BG_Grey = "100";
-	const string BG_LightRed = "101";
+	const string BG_Red = "101";
 	const string BG_LightGreen = "102";
 	const string BG_Yellow = "103";
 	const string BG_LightBlue = "104";
@@ -41,15 +41,15 @@ namespace Color {
 	const string BG_White = "107";
 
 	const string Black = "30m";
-	const string Red = "31m";
+	const string DarkRed = "31m";
 	const string Green = "32m";
 	const string Brown = "33m";
-	const string Purple = "34m";
+	const string Blue = "34m";
 	const string Pink = "35m";
 	const string Teal = "36m";
 	const string LightGrey = "37m";
 	const string Grey = "90m";
-	const string LightRed = "91m";
+	const string Red = "91m";
 	const string LightGreen = "92m";
 	const string Yellow = "93m";
 	const string LightBlue = "94m";

@@ -1,7 +1,6 @@
 #ifndef objectsHpp
 #define objectsHpp
 #include "vec2.hpp"
-#include <math.h>
 
 enum class Otype{
 	rock,
@@ -10,7 +9,7 @@ enum class Otype{
 };
 
 inline int getLevel(int xp){
-	return 1 + (int)sqrt((double)xp) / 10;
+	return 1 + sqrt(xp) / 10;
 }
 
 class GameObject {
