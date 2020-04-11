@@ -1,12 +1,17 @@
 #ifndef objectsHpp
 #define objectsHpp
 #include "vec2.hpp"
+#include <math.h>
 
 enum class Otype{
 	rock,
 	player,
 	monster
 };
+
+inline int getLevel(int xp){
+	return 1 + (int)sqrt((double)xp) / 10;
+}
 
 class GameObject {
 public:
@@ -34,6 +39,8 @@ public:
 	int strength;
 	int armor;
 	int level;
+	int gold;
+	int xp;
 	string name;
 	LivingObject () {}
 };
@@ -54,10 +61,13 @@ public:
 		pos = pos_;
 		size = vec2(1);
 		icon = 'A';
+		level = 1;
 		maxhealth = 50;
 		health = 50;
-		strength = 2;
+		strength = 6;
 		armor = 2;
+		gold = 0;
+		xp = 0;
 		name = "you";
 		otype = Otype::player;
 	}
@@ -73,7 +83,9 @@ public:
 		maxhealth = 30;
 		health = 30;
 		strength = 4;
-		armor = 0;
+		armor = 1;
+		gold = 3 + rand()%3;
+		xp = 0;
 		name = "monster";
 		otype = Otype::monster;
 	}

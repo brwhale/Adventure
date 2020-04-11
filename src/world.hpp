@@ -15,7 +15,8 @@ const vec2 drawSize = vec2(
 enum class Gstate {
 	overworld,
 	combat,
-	dialog
+	dialog,
+	death
 };
 
 class World {
@@ -50,12 +51,18 @@ public:
 		monsters.push_back(obj);
 		monsters.back().index = monsters.size() - 1;
 	}
+	void printUnitStats(const LivingObject& u){
+		print("%s: lvl:%i gold:%i hp:%i/%i str:%i amr:%i",
+				u.name.c_str(),
+				u.level,
+				u.gold,
+				u.health,
+				u.maxhealth,
+				u.strength,
+				u.armor);
+	}
 	void printUI(){
-		print("hp: %i/%i  strength: %i  armor: %i",
-				player.health,
-				player.maxhealth,
-				player.strength,
-				player.armor);
+		printUnitStats(player);
 		print("enter command");
 	}
 	void printOverworld() {
@@ -78,19 +85,18 @@ public:
 	}
 	void printCombat(){
 		print("Combat!");
-		print("enemy hp: %i/%i  strength: %i  armor: %i",
-				combatUnit->health,
-				combatUnit->maxhealth,
-				combatUnit->strength,
-				combatUnit->armor);
+		printUnitStats(*combatUnit);
 	}
 	void printView(){
 		switch (gamestate) {
-			case Gstate::overworld :
+			case Gstate::overworld:
 				printOverworld();
 				break;
-			case Gstate::combat :
+			case Gstate::combat:
 				printCombat();
+				break;
+			case Gstate::death:
+				print("you are dead");
 				break;
 			default: break;
 		}	
@@ -108,10 +114,28 @@ public:
 				defender.name.c_str(), damage);
 		if (defender.health <= 0){
 			print("and died");
-			leaveCombat();
-			if (defender.otype == Otype::monster){
+			attacker.gold += defender.gold;
+			attacker.xp += 10 * defender.level;
+			print("%s gained %i xp and %i gold",
+					defender.level,
+					defender.gold
+					);
+			auto newlevel = getLevel(attacker.xp);
+			if (newlevel != attacker.level){
+				attacker.level = newlevel;
+				print("congratulations %s reached level %i",
+						attacker.name.c_str(),
+						newlevel);
+			}
+			switch (defender.otype){
+				case Otype::monster:
 				monsters.erase(monsters.begin()
 					 + defender.index);
+				leaveCombat();
+				break;
+				case Otype::player:
+				gamestate = Gstate::death;
+				break;
 			}
 		}
 	}
