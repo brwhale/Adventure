@@ -6,8 +6,7 @@
 #include <vector>
 using std::vector;
 
-const int viewRange = 9;
-const vec2 vr(viewRange * 4, viewRange);
+const vec2 vr(26, 9);
 const vec2 drawSize = vr * 2 + 1;
 
 enum class Gstate {
@@ -77,8 +76,9 @@ public:
 			draw(obj, screen, vmin, vmax);
 		}
 		screen[vr.y][vr.x] = player.icon;
-		screen.back() = Color::GetStr(Color::White) + screen.back();
 		for (int i = drawSize.y; i--;) {
+			screen[i] = Color::GetStr(Color::White) 
+				+ "|" + screen[i] + "|";
 			print(screen[i]);
 		}
 	}
@@ -132,6 +132,9 @@ public:
 			monsters[id] = monsters.back();
 			monsters[id].index = id;
 			monsters.pop_back();
+			print("%s%u monsters left",
+				Color::Get(Color::BG_Brown, Color::Green),
+				monsters.size());
 			leaveCombat();
 		}
 			break;

@@ -18,9 +18,10 @@ namespace Color {
 		return (Esc + Default).c_str();
 	}
 	
-	const string Mode_Default = "[3";
-	const string Mode_Light = "[2";
-	const string Mode_Bold = "[1";
+	const string Mode_Italic = "[3;";
+	const string Mode_Light = "[2;";
+	const string Mode_Bold = "[1;";
+	const string Mode_Default = "[";
 
 	const string BG_Black = "40";
 	const string BG_Red = "41";
