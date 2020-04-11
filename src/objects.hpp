@@ -14,6 +14,7 @@ public:
 	vec2 size;
 	char icon = ' ';
 	Otype otype;
+	size_t index;
 };
 
 class StaticObject : public GameObject {

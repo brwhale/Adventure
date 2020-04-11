@@ -19,6 +19,7 @@ class GameInterpereter {
 	World world;
 	map<string, Func> funcs;
 	deque<VoidFunc> commandList;
+	VoidFunc lastCommand ={[](){},""};
 	bool running;
 	Gstate gamestate = Gstate::overworld;
 	vector<string> split(
@@ -45,7 +46,10 @@ class GameInterpereter {
 		return s;
 	}
 	void processInput(const string& in) {
-		if (in.length() <= 1) return;
+		if (in.length() <= 1) {
+			commandList.push_back(lastCommand);
+		 	return;
+		}
 		auto statements = split(in, ","s);
 		for (auto&& statement : statements) {
 			while (statement.size() && 
@@ -127,6 +131,7 @@ public:
 				world.movePlayer(vec2(1,0));
 			});
 		}, "move right"};
+
 		funcs["run"] = Func{[this](
 				vector<string>& args){
 			addCommand(args, 0, "trying to run!",
@@ -134,6 +139,13 @@ public:
 						world.leaveCombat();
 					});
 		}, "run from combat"};
+		funcs["fight"] = Func{[this](
+				vector<string>& args){
+			addCommand(args, 0, "attacking!",
+					[this](){
+						world.attack();
+					});
+		}, "fight in combat"};
 	}
 	void add(const StaticObject& obj) {
 		world.add(obj);
@@ -161,6 +173,7 @@ public:
 			processInput(getl());
 			while (commandList.size()) {
 				print(commandList.front().helpText);
+				lastCommand = commandList.front();
 				commandList.front()();
 				commandList.pop_front();
 				world.update();

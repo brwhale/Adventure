@@ -23,7 +23,6 @@ class World {
 	vector<StaticObject> objects;
 	vector<Monster> monsters;
 	LivingObject* combatUnit;
-	bool playerHasInitiative;
 
 	void draw(
 			const GameObject& obj,
@@ -45,9 +44,11 @@ public:
 	Gstate gamestate = Gstate::overworld;
 	void add(const StaticObject& obj) {
 		objects.push_back(obj);
+		objects.back().index = objects.size() - 1;
 	}
 	void add(const Monster& obj) {
 		monsters.push_back(obj);
+		monsters.back().index = monsters.size() - 1;
 	}
 	void printUI(){
 		print("hp: %i/%i  strength: %i  armor: %i",
@@ -58,7 +59,7 @@ public:
 		print("enter command");
 	}
 	void printOverworld() {
-		const vec2 vr(viewRange*2, viewRange);
+		const vec2 vr(viewRange * 2, viewRange);
 		vec2 vmin = player.pos - vr;
 		vec2 vmax = player.pos + vr;
 		vector<string> screen(drawSize.y, string(drawSize.x, ' '));
@@ -95,9 +96,7 @@ public:
 		}	
 	}
 	void leaveCombat() {
-		if (gamestate == Gstate::combat) {
-			gamestate = Gstate::overworld;
-		}
+		gamestate = Gstate::overworld;
 	}
 	void attack(
 			LivingObject& attacker, 
@@ -110,6 +109,10 @@ public:
 		if (defender.health <= 0){
 			print("and died");
 			leaveCombat();
+			if (defender.otype == Otype::monster){
+				monsters.erase(monsters.begin()
+					 + defender.index);
+			}
 		}
 	}
 	void attack(){
@@ -118,15 +121,16 @@ public:
 	void startCombat(
 			LivingObject& attacker, 
 			LivingObject& defender){
-		print("combat start");
+		print("combat start %s attacked %s",
+				attacker.name.c_str(),
+				defender.name.c_str());
 		gamestate = Gstate::combat;
 		if (attacker.otype == Otype::player) {
-			playerHasInitiative = true;
 			combatUnit = &defender;
 		} else {
-			playerHasInitiative = false;
 			combatUnit = &attacker;
 		}
+		attack(attacker, defender);
 	}
 	void moveUnit(LivingObject& pbj, vec2 move) {
 		const vec2 so(1);
@@ -138,16 +142,12 @@ public:
 		for (auto&& obj : monsters) {
 			if (pos.inside(obj.pos, 
 						obj.pos + obj.size - so)) {
-				// start combat with initiative 
-				// in player favor
 				startCombat(pbj, obj);
 				return;
 			}
 		}
 		if (pos.inside(player.pos, 
 					player.pos + player.size - so)) {
-			// start combat with initiative 
-			// in monster favor
 			startCombat(pbj, player);
 			return;
 		}
