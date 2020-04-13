@@ -21,10 +21,19 @@ int main() {
 	}
 
 	GI.add(Monster(vec2(0,-8)));
-
-	count = 10;
-	while(count-- > 0) {
-		GI.add(Monster(3 * vec2(offs-(rand()%range),offs-(rand()%range))));
+	offs = 10;
+	range = 30;
+	for (int l = 1; l < 10; l++){
+		count = 10;
+		offs = 10*(l-1)*l;
+		while(count-- > 0) {
+			auto pos = vec2(
+					offs+(rand()%range),
+					offs+(rand()%range));
+			if (rand()%2) pos.x *= -1;
+			if (rand()%2) pos.y *= -1;
+			GI.add(Monster(pos, l));
+		}
 	}
 	
 	GI.startSession();

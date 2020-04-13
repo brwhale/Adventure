@@ -49,7 +49,8 @@ public:
 		monsters.back().index = monsters.size() - 1;
 	}
 	void printUnitStats(const LivingObject& u){
-		print("%s%s: lvl:%i gold:%i hp:%i/%i str:%i amr:%i",
+		int xpreq = xpToLevel(u.level + 1);
+		print("%s%s: lvl:%i gold:%i hp:%i/%i str:%i amr:%i xp:%i/%i",
 			Color::Get(Color::BG_Blue, Color::White),
 			u.name.c_str(),
 			u.level,
@@ -57,7 +58,9 @@ public:
 			u.health,
 			u.maxhealth,
 			u.strength,
-			u.armor);
+			u.armor,
+			u.xp,
+			xpreq);
 	}
 	void printUnitPortrait(const LivingObject& u){
 		const int center = 3;
@@ -136,7 +139,8 @@ public:
 		LivingObject& defender) {
 		nap();
 		print("and died");
-		auto xpgain = 20 * defender.level;
+		auto xpgain = 15 +5*defender.level
+		 	*defender.level;
 		attacker.gold += defender.gold;
 		attacker.xp += xpgain;
 		nap();
@@ -182,6 +186,9 @@ public:
 			defender.name.c_str());
 		auto damage = attacker.strength 
 			- defender.armor;
+		if (damage < 0){
+			damage = 0;
+		}
 		defender.health -= damage;
 		print("%s%s took %i damage", 
 			Color::Get(Color::BG_Red, Color::Black),

@@ -138,6 +138,13 @@ public:
 						world.attack();
 					});
 		}, "fight in combat"};
+		// shorthand
+		funcs["w"] = funcs["wait"];
+		funcs["u"] = funcs["up"];
+		funcs["d"] = funcs["down"];
+		funcs["l"] = funcs["left"];
+		funcs["r"] = funcs["right"];
+		funcs["f"] = funcs["fight"];
 	}
 	void add(const StaticObject& obj) {
 		world.add(obj);
