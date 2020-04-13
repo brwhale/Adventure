@@ -63,7 +63,8 @@ public:
 		const int center = 3;
 		const vec2 cen(center);
 		const int size = 2*center + 1;
-		vector<vector<string>> output = {size, {size, {1, '.'}}};
+		vector<vector<string>> output = 
+			{size, {size, {1, '.'}}};
 		string pattern = string(1, u.icon);
 		for (int i = size; i--;){
 			for (int j = size; j--;) {
@@ -89,7 +90,8 @@ public:
 	void printOverworld() {
 		vec2 vmin = player.pos - vr;
 		vec2 vmax = player.pos + vr;
-		vector<string> screen(drawSize.y, string(drawSize.x, ' '));
+		vector<string> screen(drawSize.y, 
+			string(drawSize.x, ' '));
 		
 		for (auto&& obj : objects) {
 			draw(obj, screen, vmin, vmax);
@@ -145,12 +147,8 @@ public:
 			defender.gold);
 		auto newlevel = getLevel(attacker.xp);
 		if (newlevel != attacker.level){
-			attacker.levelUp(newlevel);
 			nap();
-			print("%scongratulations %s reached level %i",
-				Color::Get(Color::BG_Teal, Color::Yellow),
-				attacker.name.c_str(),
-				newlevel);
+			attacker.levelUp(newlevel);
 		}
 		switch (defender.otype){
 		case Otype::monster: {
@@ -193,12 +191,11 @@ public:
 		}
 	}
 	void attack(){
-		attack(player, *combatUnit);
+		if (gamestate == Gstate::combat){
+			attack(player, *combatUnit);
+		}
 	}
-	void startCombat(
-			LivingObject& attacker, 
-			LivingObject& defender){
-		
+	void startCombat(LivingObject& attacker, LivingObject& defender){
 		gamestate = Gstate::combat;
 		if (attacker.otype == Otype::player) {
 			combatUnit = &defender;
@@ -212,6 +209,7 @@ public:
 		attack(attacker, defender);
 	}
 	void moveUnit(LivingObject& pbj, vec2 move) {
+		if (gamestate != Gstate::overworld) return;
 		const vec2 so(1);
 		auto pos = pbj.pos + move;
 		for (auto&& obj : objects) {

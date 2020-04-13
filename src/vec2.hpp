@@ -2,8 +2,17 @@
 #define vec2Hpp
 #include <math.h>
 
-int sqrt(int i) {
+inline int sqrt(int i) {
 	return (int)sqrt((double)i);
+}
+
+inline void clamp(int& val, int min, int max){
+	if (val < min) val = min;
+	else if (val > max) val = max;
+}
+
+inline void clamp(int& val){
+	clamp(val, -1, 1);
 }
 
 struct vec2 { 
@@ -82,7 +91,10 @@ struct vec2 {
 		if (x == 0 && y == 0) {
 			return;
 		}
-		*this /= length();
+		clamp(x);
+		clamp(y);
+		// only works with floats
+		//*this /= length();
 	}
 	int length(){
 		return sqrt(x*x + y*y);

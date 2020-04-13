@@ -43,14 +43,19 @@ public:
 	string name;
 	LivingObject () {}
 	void levelUp(int newLevel) {
-		level = newLevel;
-		maxhealth += 5 * level;
+		while (level < newLevel){
+			level++;
+			print("%scongrats! %s grew to level %i",
+					Color::Get(Color::BG_Teal, Color::Yellow),
+					name.c_str(), level);
+			maxhealth += 5 * level;
+			strength += level/2;
+			armor += 1;
+			print("health increased to %i", health);
+			print("strength increased to %i", strength);
+			print("armor increased to %i", armor);
+		}
 		health = maxhealth;
-		strength += level/2;
-		armor += 1;
-		print("health increased to %i", health);
-		print("strength increased to %i", strength);
-		print("armor increased to %i", armor);
 	}
 	void levelUp() {
 		levelUp(level + 1);
