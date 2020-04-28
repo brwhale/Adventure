@@ -116,8 +116,12 @@ public:
 	}
 	vec2 wander(const vec2& tpos){
 		auto diff = tpos - pos;
-		diff.normalize();
-		return diff;
+		auto len = diff.length();
+		if (len < 30) {
+			diff.normalize();
+			return diff;
+		}
+		return vec2((rand()%2)-1,(rand()%2)-1);
 	}
 };
 

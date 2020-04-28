@@ -13,9 +13,9 @@ int main() {
 
 	GI.add(Rock(vec2(-5,-3), vec2(4, 2)));
 
-	int range = 60;
+	int range = 200;
 	int offs = range/2;
-	int count = 40;
+	int count = 400;
 	while(count-- > 0) {
 		GI.add(Rock(vec2(offs-(rand()%range),offs-(rand()%range))));
 	}
@@ -24,8 +24,8 @@ int main() {
 	offs = 10;
 	range = 30;
 	for (int l = 1; l < 10; l++){
-		count = 10;
-		offs = 10*(l-1)*l;
+		count = 20;
+		offs = 30*(l-1)*l;
 		while(count-- > 0) {
 			auto pos = vec2(
 					offs+(rand()%range),
