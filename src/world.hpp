@@ -73,6 +73,8 @@ public:
 			for (int j = size; j--;) {
 				if (vec2(i,j).distance(cen) < center - 1) {
 					output[i][j] = pattern;
+				} else {
+					output[i][j] = ".";
 				}
 			}
 		}
